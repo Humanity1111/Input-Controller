@@ -23,7 +23,7 @@ controller.target.addEventListener(InputController.ACTION_DEACTIVATED, function(
 })
 
 function gameLoop(){
-    if (!controller.enabled) return;
+    if (controller.enabled){
 
     const speed = 5;
     let x = parseInt(player.style.left) || 250;
@@ -33,15 +33,18 @@ function gameLoop(){
     if (controller.isActionActive('right')) x+=speed;
     if (controller.isActionActive('up')) y-=speed;
     if (controller.isActionActive('down')) y+=speed;
+    
     player.style.left = Math.max(0, Math.min(458, x)) + 'px';
     player.style.top = Math.max(80,Math.min(530,y)) + 'px';
-    requestAnimationFrame(gameLoop);
+   
+    }
+     requestAnimationFrame(gameLoop);
 }
 
 
 
 document.getElementById('attach').addEventListener('click', function(){
-    controller.attach(document,getElementById('arena'));
+    controller.attach(document.getElementById('arena'));
     updateStatus();
 })
 
