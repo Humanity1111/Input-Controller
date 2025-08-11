@@ -33,7 +33,11 @@ function gameLoop(){
     if (controller.isActionActive('right')) x+=speed;
     if (controller.isActionActive('up')) y-=speed;
     if (controller.isActionActive('down')) y+=speed;
-    
+    if (controller.isActionActive('jump')){
+        player.style.backgroundColor = 'cyan';
+    } else {
+        player.style.backgroundColor = 'red';
+    }
     player.style.left = Math.max(0, Math.min(458, x)) + 'px';
     player.style.top = Math.max(80,Math.min(530,y)) + 'px';
    
@@ -70,14 +74,14 @@ document.getElementById('add-jump').addEventListener('click', function(){
     });
     controller.enableAction('jump');
     controller.target.addEventListener(InputController.ACTION_ACTIVATED, function(e){
-        if (e.detail.action === 'jump'){
+        if (e.detail.action === 'jump   '){
             player.style.backgroundColor = 'cyan';
         }
     });
 
     controller.target.addEventListener(InputController.ACTION_DEACTIVATED, function(e){
         if (e.detail.action === 'jump'){
-            player.style.backgroundColor = 'red';
+            player.style.backgroundColor = 'white';
         }
     });
 })
