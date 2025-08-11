@@ -62,8 +62,28 @@ document.getElementById('disable').addEventListener('click', function(){
     updateStatus();
 })
 
+
+document.getElementById('add-jump').addEventListener('click', function(){
+    controller.bindActions({
+        jump: {keys: [32] }
+    });
+    controller.enableAction('jump');
+    controller.target.addEventListener(InputController.ACTION_ACTIVATED, function(e){
+        if (e.detail.action === 'jump'){
+            player.style.backgroundColor = 'cyan';
+        }
+    });
+
+    controller.target.addEventListener(InputController.ACTION_DEACTIVATED, function(e){
+        if (e.detail.action === 'jump'){
+            player.style.backgroundColor = 'red';
+        }
+    });
+})
 window.addEventListener('focus', updateStatus);
 window.addEventListener('blur', updateStatus);
 window.onfocus = window.onblur=updateStatus;
+
 updateStatus();
 gameLoop();
+
