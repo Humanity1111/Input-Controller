@@ -5,14 +5,13 @@ const controller = new InputController({
     down: {keys : [40,83]}
 });
 controller.attach(document.getElementById('arena'));
-
 const player = document.getElementById('player');
 const controllerStatus = document.getElementById('controller-status');
 const focusStatus = document.getElementById('focus-status');
 
 function updateStatus(){
     controllerStatus.textContent = controller.enabled ? 'Включен' : 'Выключен';
-    focusStatus.textContent = focus.enabled ? 'В фокусе' : 'Не в фокусе';
+    focusStatus.textContent = document.hasFocus() ? 'В фокусе' : 'Не в фокусе';
 }
 
 controller.target.addEventListener(InputController.ACTION_ACTIVATED, function(e){
@@ -36,7 +35,6 @@ function gameLoop(){
     if (controller.isActionActive('down')) y+=speed;
     player.style.left = Math.max(0, Math.min(458, x)) + 'px';
     player.style.top = Math.max(80,Math.min(530,y)) + 'px';
-
     requestAnimationFrame(gameLoop);
 }
 
@@ -84,6 +82,7 @@ window.addEventListener('focus', updateStatus);
 window.addEventListener('blur', updateStatus);
 window.onfocus = window.onblur=updateStatus;
 
-updateStatus();
 gameLoop();
+updateStatus();
+
 
