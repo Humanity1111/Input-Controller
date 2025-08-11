@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html  lang ="en">
+    <head>
+        <meta charset ="UTF-8">
+        <meta name = "viewport" content = "width=device-width",initial-scale=1.0">
+        <title> Input Controller  </title>
+        <style>
+            #arena {
+                width: 500px;
+                height: 500px;
+                background-color: rgb(0, 0, 0);
+                margin: 0px;
+                transition: all 1s;
+
+            }
+            #player {
+                width : 50px;
+                height: 50px;
+                background-color: rgb(30, 211, 23);
+                position: absolute;
+                top: 250px;
+                left: 250px;
+                transition: all 0.1s;
+            }
+            #control {
+                margin:20px;
+                text-align: center;
+            }
+
+            #button {
+                margin: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Input Controller Test</h1>
+        <div id="arena">
+            <div id ="player"></div>
+        </div>
+        <div class="control">
+            <button id ="attach">Прикрепить контроллер</button>
+            <button id ="detach">Открепить контроллер</button>
+            <button id ="enable">Включить контроллер</button>
+            <button id ="disable">Отключить контроллер</button>
+        </div>
+        <div class="status">
+            <p>Состояние контроллера: <span id="controller-status">Выключен</span></p>
+            <p>Статус окна: <span id="focus-status">В фокусе</span></p>
+        </div>
+        <script src ="input-controller.js"></script>
+        <script src ="input-controller-test.js"></script>
+    </body>
+</html>
