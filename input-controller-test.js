@@ -4,7 +4,7 @@ const controller = new InputController({
     up: { keys: [38, 87] },     
     down: { keys: [40, 83] }    
 });
-controller.attach(document.getElementById('arena'));
+controller.attach(document.getElementById('player'));
 
 const player = document.getElementById('player');
 const controllerStatus = document.getElementById('controller-status');
@@ -26,8 +26,8 @@ controller.target.addEventListener(InputController.ACTION_DEACTIVATED, function 
 function gameLoop() {
     if (controller.enabled) {
         const speed = 5;
-        let x = parseInt(player.style.left) || 250;
-        let y = parseInt(player.style.top) || 250;
+        let x = parseInt(player.style.left) || 0;
+        let y = parseInt(player.style.top) || 0;
 
         if (controller.isActionActive('left')) x -= speed;
         if (controller.isActionActive('right')) x += speed;
