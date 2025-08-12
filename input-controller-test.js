@@ -1,8 +1,8 @@
 const controller = new InputController({
-    left: { keys: [37, 65] },   // стрелка влево, A
-    right: { keys: [39, 68] },  // стрелка вправо, D
-    up: { keys: [38, 87] },     // стрелка вверх, W
-    down: { keys: [40, 83] }    // стрелка вниз, S
+    left: { keys: [37, 65] },  
+    right: { keys: [39, 68] },  
+    up: { keys: [38, 87] },     
+    down: { keys: [40, 83] }    
 });
 controller.attach(document.getElementById('arena'));
 
@@ -40,7 +40,6 @@ function gameLoop() {
             player.style.backgroundColor = 'red';
         }
 
-        // Ограничения по полю
         x = Math.max(0, Math.min(450, x));
         y = Math.max(0, Math.min(450, y));
 
@@ -73,7 +72,7 @@ document.getElementById('disable').addEventListener('click', function () {
 document.getElementById('add-jump').addEventListener('click', function () {
     if (!controller.actions.jump) {
         controller.bindActions({
-            jump: { keys: [32] } // Пробел
+            jump: { keys: [32] }
         });
         controller.enableAction('jump');
     }
@@ -84,3 +83,4 @@ window.addEventListener('blur', updateStatus);
 
 gameLoop();
 updateStatus();
+
