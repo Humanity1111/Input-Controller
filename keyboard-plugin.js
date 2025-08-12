@@ -22,8 +22,8 @@ class KeyboardPlugin {
 
         for (const [actionName, config] of Object.entries(this.controller.actions)) {
             if (config.enabled && config.keys && config.keys.includes(keyCode)) {
-                const wasActive = config.keys.some(x => this.pressedKeys.has(x) && x !== keyCode);
-                if (!wasActive) {
+                const Active = config.keys.some(x => this.pressedKeys.has(x) && x !== keyCode);
+                if (!Active) {
                     this.controller.dispatchEvent(InputController.ACTION_ACTIVATED, actionName);
                 }
             }
@@ -39,8 +39,8 @@ class KeyboardPlugin {
 
         for (const [actionName, config] of Object.entries(this.controller.actions)) {
             if (config.enabled && config.keys && config.keys.includes(keyCode)) {
-                const stillActive = config.keys.some(k => this.pressedKeys.has(k));
-                if (!stillActive) {
+                const Active = config.keys.some(k => this.pressedKeys.has(k));
+                if (!Active) {
                     this.controller.dispatchEvent(InputController.ACTION_DEACTIVATED, actionName);
                 }
             }

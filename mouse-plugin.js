@@ -1,7 +1,7 @@
 class MousePlugin {
     constructor(controller) {
         this.controller = controller;
-        this.PressedButtons = new Set();
+        this.pressedButtons = new Set();
     }
 
     init() {
@@ -10,15 +10,15 @@ class MousePlugin {
     }
 
     reset() {
-        this.PressedButtons.clear();
+        this.pressedButtons.clear();
     }
 
     onMouseDown = (event) => {
         if (!this.controller.enabled || !this.controller.focused) return;
 
         const button = event.button;
-        if (this.PressedButtons.has(button)) return;
-        this.PressedButtons.add(button);
+        if (this.pressedButtons.has(button)) return;
+        this.pressedButtons.add(button);
 
         for (const [actionName, config] of Object.entries(this.controller.actions)) {
             if (config.enabled && config.mouseButtons && config.mouseButtons.includes(button)) {
@@ -31,8 +31,8 @@ class MousePlugin {
         if (!this.controller.enabled || !this.controller.focused) return;
 
         const button = event.button;
-        if (!this.PressedButtons.has(button)) return;
-        this.PressedButtons.delete(button);
+        if (!this.pressedButtons.has(button)) return;
+        this.pressedButtons.delete(button);
 
         for (const [actionName, config] of Object.entries(this.controller.actions)) {
             if (config.enabled && config.mouseButtons && config.mouseButtons.includes(button)) {
