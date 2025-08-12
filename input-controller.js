@@ -21,12 +21,12 @@ class InputController {
         for (const [actionName, config] of Object.entries(actionsToBind)) {
             if (!this.actions[actionName]) {
                 this.actions[actionName] = {
-                    keys: new Set(config.keys || []),
+                    keys: new Set(config.keys),
                     enabled: config.enabled !== false
                 };
             } else {
-                (config.keys || []).forEach(key => this.actions[actionName].keys.add(key));
-                if (typeof config.enabled === 'boolean') {
+                config.keys.forEach(key => this.actions[actionName].keys.add(key));
+                if (config.enabled === 'boolean') {
                     this.actions[actionName].enabled = config.enabled;
                 }
             }

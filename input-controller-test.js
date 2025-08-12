@@ -15,12 +15,12 @@ function updateStatus() {
     focusStatus.textContent = document.hasFocus() ? 'В фокусе' : 'Не в фокусе';
 }
 
-controller.target.addEventListener(InputController.ACTION_ACTIVATED, function (e) {
-    console.log('Активировано действие', e.detail.action);
+controller.target.addEventListener(InputController.ACTION_ACTIVATED, function (x) {
+    console.log('Активировано действие', x.detail.action);
 });
 
-controller.target.addEventListener(InputController.ACTION_DEACTIVATED, function (e) {
-    console.log('Деактивировано действие', e.detail.action);
+controller.target.addEventListener(InputController.ACTION_DEACTIVATED, function (x) {
+    console.log('Деактивировано действие', x.detail.action);
 });
 
 function gameLoop() {
@@ -50,7 +50,7 @@ function gameLoop() {
 }
 
 document.getElementById('attach').addEventListener('click', function () {
-    controller.attach(document.getElementById('arena'));
+    controller.attach(document.getElementById('player'));
     updateStatus();
 });
 
@@ -72,7 +72,7 @@ document.getElementById('disable').addEventListener('click', function () {
 document.getElementById('add-jump').addEventListener('click', function () {
     if (!controller.actions.jump) {
         controller.bindActions({
-            jump: { keys: [32] }
+            jump: { keys: [32] } 
         });
         controller.enableAction('jump');
     }
@@ -83,4 +83,3 @@ window.addEventListener('blur', updateStatus);
 
 gameLoop();
 updateStatus();
-

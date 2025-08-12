@@ -16,18 +16,15 @@
         #player {
             width: 50px;
             height: 50px;
-            background-color: rgb(30, 211, 23);
+            border-radius: 50%;
             position: absolute;
             top: 250px;
             left: 250px;
             transition: all 0.1s;
         }
-        .control {
-            margin: 20px;
-            text-align: center;
-        }
+        .control 
         button {
-            margin: 5px;
+            margin: 1px;
         }
     </style>
 </head>
@@ -44,8 +41,8 @@
         <button id="add-jump">Добавить прыжок</button>
     </div>
     <div class="status">
-        <p>Состояние контроллера: <span id="controller-status">Выключен</span></p>
-        <p>Статус окна: <span id="focus-status">В фокусе</span></p>
+        <p>Состояние контроллера: <span id="controller-status"></span></p>
+        <p>Статус окна: <span id="focus-status"></span></p>
     </div>
     <script src="input-controller.js"></script>
     <script src="input-controller-test.js"></script>
