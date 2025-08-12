@@ -84,23 +84,28 @@ class InputController {
     _handleKeyDown(event) {
         if (!this.enabled || !this.focused) return;
         const keyCode = event.keyCode;
-        if (!this.pressedKeys.has(keyCode)) {
-            this.pressedKeys.add(keyCode);
-            for (const [actionName, action] of Object.entries(this.actions)) {
-                if (action.enabled && action.keys.has(keyCode)) {
+        if (this.pressedKeys.has(keyCode)) return;
+        for (const [actionName, action] of Object.entries(this.actions)) {
+            if (action.enabled && action.keys.has(keyCode)) {
+                const have = [...action.keys].some(x => this.pressedKeys.has(x));
+                if (!have) {
                     this._dispatchEvent(InputController.ACTION_ACTIVATED, actionName);
-                }
+                }             
             }
         }
+        this.pressedKeys.add(keyCode);
     }
+
 
     _handleKeyUp(event) {
         if (!this.enabled || !this.focused) return;
         const keyCode = event.keyCode;
-        if (this.pressedKeys.has(keyCode)) {
-            this.pressedKeys.delete(keyCode);
-            for (const [actionName, action] of Object.entries(this.actions)) {
-                if (action.enabled && action.keys.has(keyCode)) {
+        if (!this.pressedKeys.has(keyCode)) return;
+        this.pressedKeys.delete(keyCode);
+        for (const [actionName, action] of Object.entries(this.actions)) {
+            if (action.enabled && action.keys.has(keyCode)) {
+                const have = [...action.keys].some(x => this.pressedKeys.has(x));
+                if (!have){
                     this._dispatchEvent(InputController.ACTION_DEACTIVATED, actionName);
                 }
             }
