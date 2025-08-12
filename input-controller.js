@@ -1,35 +1,29 @@
 class InputController {
-    static get ACTION_ACTIVATED() {
-        return 'input-controller:action-activated';
-    }
-    static get ACTION_DEACTIVATED() {
-        return 'input-controller:action-deactivated';
-    }
+    static get ACTION_ACTIVATED() { return 'input-controller:action-activated'; }
+    static get ACTION_DEACTIVATED() { return 'input-controller:action-deactivated'; }
 
     constructor(actionsToBind = {}, target = document) {
         this.enabled = true;
         this.focused = true;
         this.target = target;
         this.actions = {};
-        this.pressedKeys = new Set();
+        this.plugins = [];
 
         this.bindActions(actionsToBind);
-        this._setupEventListeners();
+
+        window.addEventListener('focus', () => this.focused = true);
+        window.addEventListener('blur', () => {
+            this.focused = false;
+            this.plugins.forEach(x => x.reset && x.reset());
+        });
     }
 
     bindActions(actionsToBind) {
         for (const [actionName, config] of Object.entries(actionsToBind)) {
-            if (!this.actions[actionName]) {
-                this.actions[actionName] = {
-                    keys: new Set(config.keys),
-                    enabled: config.enabled !== false
-                };
-            } else {
-                config.keys.forEach(key => this.actions[actionName].keys.add(key));
-                if (config.enabled === 'boolean') {
-                    this.actions[actionName].enabled = config.enabled;
-                }
-            }
+            this.actions[actionName] = {
+                ...config,
+                enabled: config.enabled !== false
+            };
         }
     }
 
@@ -45,89 +39,28 @@ class InputController {
         }
     }
 
-    attach(target, dontEnable = false) {
+    addPlugin(plugin) {
+        this.plugins.push(plugin);
+        plugin.init();
+    }
+
+    attach (target, dontEnable = false) {
         this.target = target;
-        if (!dontEnable) {
-            this.enabled = true;
-        }
+        this.plugins.forEach(x => x.init());
+        if (!dontEnable) this.enabled = true;
     }
 
     detach() {
         this.enabled = false;
+        this.plugins.forEach(x => x.reset());
         this.target = null;
-        this.pressedKeys.clear();
     }
 
-    isActionActive(actionName) {
-        if (!this.enabled || !this.focused || !this.actions[actionName] || !this.actions[actionName].enabled) {
-            return false;
-        }
-        for (const key of this.actions[actionName].keys) {
-            if (this.pressedKeys.has(key)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    isKeyPressed(keyCode) {
-        return this.pressedKeys.has(keyCode);
-    }
-
-    _setupEventListeners() {
-        window.addEventListener('keydown', this._handleKeyDown.bind(this));
-        window.addEventListener('keyup', this._handleKeyUp.bind(this));
-        window.addEventListener('focus', this._handleFocus.bind(this));
-        window.addEventListener('blur', this._handleBlur.bind(this));
-    }
-
-    _handleKeyDown(event) {
-        if (!this.enabled || !this.focused) return;
-        const keyCode = event.keyCode;
-        if (this.pressedKeys.has(keyCode)) return;
-        for (const [actionName, action] of Object.entries(this.actions)) {
-            if (action.enabled && action.keys.has(keyCode)) {
-                const have = [...action.keys].some(x => this.pressedKeys.has(x));
-                if (!have) {
-                    this._dispatchEvent(InputController.ACTION_ACTIVATED, actionName);
-                }             
-            }
-        }
-        this.pressedKeys.add(keyCode);
-    }
-
-
-    _handleKeyUp(event) {
-        if (!this.enabled || !this.focused) return;
-        const keyCode = event.keyCode;
-        if (!this.pressedKeys.has(keyCode)) return;
-        this.pressedKeys.delete(keyCode);
-        for (const [actionName, action] of Object.entries(this.actions)) {
-            if (action.enabled && action.keys.has(keyCode)) {
-                const have = [...action.keys].some(x => this.pressedKeys.has(x));
-                if (!have){
-                    this._dispatchEvent(InputController.ACTION_DEACTIVATED, actionName);
-                }
-            }
-        }
-    }
-
-    _handleFocus() {
-        this.focused = true;
-    }
-
-    _handleBlur() {
-        this.focused = false;
-        this.pressedKeys.clear();
-    }
-
-    _dispatchEvent(eventType, actionName) {
+    dispatchEvent(eventType, actionName) {
         if (!this.target || !this.enabled) return;
-        const event = new CustomEvent(eventType, {
-            detail: { action: actionName }
-        });
-        this.target.dispatchEvent(event);
+        this.target.dispatchEvent(new CustomEvent(eventType, { 
+            detail: { action: actionName } }));
     }
 }
 
-window.InputController = InputController;
+window.InputController = InputController
