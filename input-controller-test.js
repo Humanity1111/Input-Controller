@@ -16,11 +16,11 @@ function updateStatus() {
 }
 
 controller.target.addEventListener(InputController.ACTION_ACTIVATED, function (x) {
-    console.log('Активировано действие', x.detail.action);
+    console.log('Активировано действие:', x.detail.action);
 });
 
 controller.target.addEventListener(InputController.ACTION_DEACTIVATED, function (x) {
-    console.log('Деактивировано действие', x.detail.action);
+    console.log('Деактивировано действие:', x.detail.action);
 });
 
 function gameLoop() {
