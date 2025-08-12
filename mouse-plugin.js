@@ -1,45 +1,32 @@
 class MousePlugin {
     constructor(controller) {
         this.controller = controller;
-        this.pressedButtons = new Set();
+        this.target = null;
+
+        this.mouseDownHandler = this.mouseDownHandler.bind(this);
+        this.mouseUpHandler = this.mouseUpHandler.bind(this);
     }
 
-    init() {
-        window.addEventListener('mousedown', this.onMouseDown);
-        window.addEventListener('mouseup', this.onMouseUp);
+    attach(target) {
+        this.target = target;
+        target.addEventListener('mousedown', this.mouseDownHandler);
+        target.addEventListener('mouseup', this.mouseUpHandler);
     }
 
-    reset() {
-        this.pressedButtons.clear();
+    detach() {
+        if (!this.target) return;
+        this.target.removeEventListener('mousedown', this.mouseDownHandler);
+        this.target.removeEventListener('mouseup', this.mouseUpHandler);
+        this.target = null;
     }
 
-    onMouseDown = (event) => {
+    mouseDownHandler(event) {
         if (!this.controller.enabled || !this.controller.focused) return;
-
-        const button = event.button;
-        if (this.pressedButtons.has(button)) return;
-        this.pressedButtons.add(button);
-
-        for (const [actionName, config] of Object.entries(this.controller.actions)) {
-            if (config.enabled && config.mouseButtons && config.mouseButtons.includes(button)) {
-                this.controller.dispatchEvent(InputController.ACTION_ACTIVATED, actionName);
-            }
-        }
+        this.controller.buttonDown(1000 + event.button);
     }
 
-    onMouseUp = (event) => {
+    mouseUpHandler(event) {
         if (!this.controller.enabled || !this.controller.focused) return;
-
-        const button = event.button;
-        if (!this.pressedButtons.has(button)) return;
-        this.pressedButtons.delete(button);
-
-        for (const [actionName, config] of Object.entries(this.controller.actions)) {
-            if (config.enabled && config.mouseButtons && config.mouseButtons.includes(button)) {
-                this.controller.dispatchEvent(InputController.ACTION_DEACTIVATED, actionName);
-            }
-        }
+        this.controller.buttonUp(1000 + event.button);
     }
 }
-
-window.MousePlugin = MousePlugin;

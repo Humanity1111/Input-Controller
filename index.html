@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +14,7 @@
             transition: all 1s;
             position: relative;
         }
+
         #player {
             width: 50px;
             height: 50px;
@@ -23,31 +25,33 @@
             left: 0px;
             transition: all 0.1s;
         }
-        .control 
-        button {
+
+        .control button {
             margin: 1px;
         }
     </style>
 </head>
+
 <body>
     <h1>Input Controller Test</h1>
     <div id="arena">
         <div id="player"></div>
     </div>
     <div class="control">
-        <button id="attach">Прикрепить контроллер</button>
-        <button id="detach">Открепить контроллер</button>
-        <button id="enable">Включить контроллер</button>
-        <button id="disable">Отключить контроллер</button>
-        <button id="add-jump">Добавить прыжок</button>
+        <button id="attach">Attach controller</button>
+        <button id="detach">Detach controller</button>
+        <button id="enable">Enable controller</button>
+        <button id="disable">Disable controller</button>
+        <button id="add-jump">Add jump</button>
     </div>
     <div class="status">
-        <p>Состояние контроллера: <span id="controller-status"></span></p>
-        <p>Статус фокуса: <span id="focus-status"></span></p>
+        <p>Controller status: <span id="controller-status"></span></p>
+        <p>Focus status: <span id="focus-status"></span></p>
     </div>
     <script src="input-controller.js"></script>
     <script src="keyboard-plugin.js"></script>
     <script src="mouse-plugin.js"></script>
     <script src="input-controller-test.js"></script>
 </body>
+
 </html>

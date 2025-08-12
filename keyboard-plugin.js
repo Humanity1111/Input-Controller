@@ -1,51 +1,31 @@
 class KeyboardPlugin {
-    constructor(controller) {
-        this.controller = controller;
-        this.pressedKeys = new Set();
-    }
+  constructor(controller) {
+    this.controller = controller;
+    this.target = null;
 
-    init() {
-        window.addEventListener('keydown', this.onKeyDown);
-        window.addEventListener('keyup', this.onKeyUp);
-    }
+    this.keyDownHandler = this.keyDownHandler.bind(this);
+    this.keyUpHandler = this.keyUpHandler.bind(this);
+  }
 
-    reset() {
-        this.pressedKeys.clear();
-    }
+  attach(target) {
+    this.target = target;
+    window.addEventListener('keydown', this.keyDownHandler);
+    window.addEventListener('keyup', this.keyUpHandler);
+  }
 
-    onKeyDown = (event) => {
-        if (!this.controller.enabled || !this.controller.focused) return;
+  detach() {
+    window.removeEventListener('keydown', this.keyDownHandler);
+    window.removeEventListener('keyup', this.keyUpHandler);
+    this.target = null;
+  }
 
-        const keyCode = event.keyCode;
-        if (this.pressedKeys.has(keyCode)) return;
-        this.pressedKeys.add(keyCode);
+  keyDownHandler(event) {
+    if (!this.controller.enabled || !this.controller.focused) return;
+    this.controller.buttonDown(event.keyCode);
+  }
 
-        for (const [actionName, config] of Object.entries(this.controller.actions)) {
-            if (config.enabled && config.keys && config.keys.includes(keyCode)) {
-                const Active = config.keys.some(x => this.pressedKeys.has(x) && x !== keyCode);
-                if (!Active) {
-                    this.controller.dispatchEvent(InputController.ACTION_ACTIVATED, actionName);
-                }
-            }
-        }
-    }
-
-    onKeyUp = (event) => {
-        if (!this.controller.enabled || !this.controller.focused) return;
-
-        const keyCode = event.keyCode;
-        if (!this.pressedKeys.has(keyCode)) return;
-        this.pressedKeys.delete(keyCode);
-
-        for (const [actionName, config] of Object.entries(this.controller.actions)) {
-            if (config.enabled && config.keys && config.keys.includes(keyCode)) {
-                const Active = config.keys.some(k => this.pressedKeys.has(k));
-                if (!Active) {
-                    this.controller.dispatchEvent(InputController.ACTION_DEACTIVATED, actionName);
-                }
-            }
-        }
-    }
+  keyUpHandler(event) {
+    if (!this.controller.enabled || !this.controller.focused) return;
+    this.controller.buttonUp(event.keyCode);
+  }
 }
-
-window.KeyboardPlugin = KeyboardPlugin;
