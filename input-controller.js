@@ -1,6 +1,6 @@
-class InputController {
-    static get ACTION_ACTIVATED() { return 'input-controller:action-activated'; }
-    static get ACTION_DEACTIVATED() { return 'input-controller:action-deactivated'; }
+export class InputController {
+    static ACTION_ACTIVATED = 'input-controller:action-activated';
+    static ACTION_DEACTIVATED = 'input-controller:action-deactivated';
 
     constructor(actions = {}, target = document) {
         this.enabled = true;
@@ -12,11 +12,11 @@ class InputController {
 
         this.bindActions(actions);
 
-        this.handleFocus = this.handleFocus.bind(this);
-        this.handleBlur = this.handleBlur.bind(this);
-
-        window.addEventListener('focus', this.handleFocus);
-        window.addEventListener('blur', this.handleBlur);
+        window.addEventListener('focus', () => this.focused = true);
+        window.addEventListener('blur', () => {
+            this.focused = false;
+            this.pressedButtons.clear();
+        });
     }
 
     bindActions(actionsToBind) {
@@ -38,9 +38,7 @@ class InputController {
     }
 
     attach(target) {
-        if (this.target && this.target !== document) {
-            this.plugins.forEach(plugin => plugin.detach());
-        }
+        this.plugins.forEach(plugin => plugin.detach());
         this.target = target;
         this.plugins.forEach(plugin => plugin.attach(target));
     }
@@ -55,33 +53,11 @@ class InputController {
         if (this.target) plugin.attach(this.target);
     }
 
-    isActionActive(actionName) {
+    isActionActive(name) {
         if (!this.enabled || !this.focused) return false;
-        const action = this.actions[actionName];
+        const action = this.actions[name];
         if (!action || !action.enabled) return false;
-        for (const key of action.keys) {
-            if (this.pressedButtons.has(key)) return true;
-        }
-        return false;
-    }
-
-    isKeyPressed(keyCode) {
-        return this.pressedButtons.has(keyCode);
-    }
-
-    handleFocus() {
-        this.focused = true;
-    }
-
-    handleBlur() {
-        this.focused = false;
-        this.pressedButtons.clear();
-    }
-
-    dispatchEvent(eventType, actionName) {
-        if (!this.target || !this.enabled) return;
-        const event = new CustomEvent(eventType, { detail: { action: actionName } });
-        this.target.dispatchEvent(event);
+        return [...action.keys].some(k => this.pressedButtons.has(k));
     }
 
     buttonDown(button) {
@@ -111,5 +87,9 @@ class InputController {
             }
         }
     }
+
+    dispatchEvent(type, actionName) {
+        if (!this.target || !this.enabled) return;
+        this.target.dispatchEvent(new CustomEvent(type, { detail: { action: actionName } }));
+    }
 }
-window.InputController = InputController;

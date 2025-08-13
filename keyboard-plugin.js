@@ -1,32 +1,29 @@
-class KeyboardPlugin {
+export class KeyboardPlugin {
     constructor(controller) {
         this.controller = controller;
-        this.target = null;
 
-        this.keyDownHandler = this.keyDownHandler.bind(this);
-        this.keyUpHandler = this.keyUpHandler.bind(this);
+        this.onKeyDown = this.onKeyDown.bind(this);
+        this.onKeyUp = this.onKeyUp.bind(this);
     }
 
     attach(target) {
-        this.target = target;
-        window.addEventListener('keydown', this.keyDownHandler);
-        window.addEventListener('keyup', this.keyUpHandler);
+        this.detach();
+        window.addEventListener('keydown', this.onKeyDown);
+        window.addEventListener('keyup', this.onKeyUp);
     }
 
     detach() {
-        if (!this.target) return;
-        window.removeEventListener('keydown', this.keyDownHandler);
-        window.removeEventListener('keyup', this.keyUpHandler);
-        this.target = null;
+        window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('keyup', this.onKeyUp);
     }
 
-    keyDownHandler(event) {
+    onKeyDown(e) {
         if (!this.controller.enabled || !this.controller.focused) return;
-        this.controller.buttonDown(event.keyCode);
+        this.controller.buttonDown('Key:' + e.code);
     }
 
-    keyUpHandler(event) {
+    onKeyUp(e) {
         if (!this.controller.enabled || !this.controller.focused) return;
-        this.controller.buttonUp(event.keyCode);
+        this.controller.buttonUp('Key:' + e.code);
     }
 }

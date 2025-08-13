@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Controller</title>
+    <title>Input Controller Demo</title>
     <style>
         #arena {
             width: 500px;
@@ -19,7 +18,6 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background-color: beige;
             position: absolute;
             top: 0px;
             left: 0px;
@@ -33,25 +31,23 @@
 </head>
 
 <body>
-    <h1>Input Controller Test</h1>
+
+
     <div id="arena">
         <div id="player"></div>
     </div>
-    <div class="control">
-        <button id="attach">Attach controller</button>
-        <button id="detach">Detach controller</button>
-        <button id="enable">Enable controller</button>
-        <button id="disable">Disable controller</button>
-        <button id="add-jump">Add jump</button>
+    <div id="status">
+        Controller status: <span id="controller-status"></span> |
+        Focus status: <span id="focus-status"></span>
     </div>
-    <div class="status">
-        <p>Controller status: <span id="controller-status"></span></p>
-        <p>Focus status: <span id="focus-status"></span></p>
+    <div id="controls">
+        <button id="attach">Attach</button>
+        <button id="detach">Detach</button>
+        <button id="enable">Enable</button>
+        <button id="disable">Disable</button>
+        <button id="add-jump">Add Jump</button>
     </div>
-    <script src="input-controller.js"></script>
-    <script src="keyboard-plugin.js"></script>
-    <script src="mouse-plugin.js"></script>
-    <script src="input-controller-test.js"></script>
+    <script type="module" src="./input-controller-test.js"></script>
 </body>
 
 </html>
