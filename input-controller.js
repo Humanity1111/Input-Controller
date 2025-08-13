@@ -20,11 +20,11 @@ class InputController {
     }
 
     bindActions(actionsToBind) {
-        for (const [name, cfg] of Object.entries(actionsToBind)) {
+        for (const [name, config] of Object.entries(actionsToBind)) {
             if (!this.actions[name]) {
-                this.actions[name] = { keys: new Set(cfg.keys || []), enabled: cfg.enabled !== false };
+                this.actions[name] = { keys: new Set(config.keys), enabled: config.enabled !== false };
             } else {
-                (cfg.keys || []).forEach(k => this.actions[name].keys.add(k));
+                (config.keys).forEach(k => this.actions[name].keys.add(k));
             }
         }
     }
@@ -90,8 +90,8 @@ class InputController {
 
         for (const [name, action] of Object.entries(this.actions)) {
             if (action.enabled && action.keys.has(button)) {
-                const wasActive = [...action.keys].some(k => k !== button && this.pressedButtons.has(k));
-                if (!wasActive) {
+                const Alive = [...action.keys].some(k => k !== button && this.pressedButtons.has(k));
+                if (!Alive) {
                     this.dispatchEvent(InputController.ACTION_ACTIVATED, name);
                 }
             }
@@ -104,8 +104,8 @@ class InputController {
 
         for (const [name, action] of Object.entries(this.actions)) {
             if (action.enabled && action.keys.has(button)) {
-                const stillActive = [...action.keys].some(k => this.pressedButtons.has(k));
-                if (!stillActive) {
+                const Alive = [...action.keys].some(k => this.pressedButtons.has(k));
+                if (!Alive) {
                     this.dispatchEvent(InputController.ACTION_DEACTIVATED, name);
                 }
             }
