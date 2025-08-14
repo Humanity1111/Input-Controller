@@ -1,15 +1,16 @@
-export function KeyboardPlugin(controller) {
-    const handleKeyDown = (e) => controller._setKeyState(e.keyCode, true);
-    const handleKeyUp = (e) => controller._setKeyState(e.keyCode, false);
+import { ControllerPlugin } from "./controller-plugin.js";
 
-    return {
-        attach() {
-            window.addEventListener("keydown", handleKeyDown);
-            window.addEventListener("keyup", handleKeyUp);
-        },
-        detach() {
-            window.removeEventListener("keydown", handleKeyDown);
-            window.removeEventListener("keyup", handleKeyUp);
-        }
-    };
+export class KeyboardPlugin extends ControllerPlugin {
+    init(target) {
+        this._keyDownHandler = e => this._handleInput(e.code, true);
+        this._keyUpHandler = e => this._handleInput(e.code, false);
+        target.addEventListener("keydown", this._keyDownHandler);
+        target.addEventListener("keyup", this._keyUpHandler);
+    }
+
+    destroy() {
+        if (!this.target) return;
+        this.target.removeEventListener("keydown", this._keyDownHandler);
+        this.target.removeEventListener("keyup", this._keyUpHandler);
+    }
 }
