@@ -1,95 +1,80 @@
 export class InputController {
-    static ACTION_ACTIVATED = 'input-controller:action-activated';
-    static ACTION_DEACTIVATED = 'input-controller:action-deactivated';
+    static ACTION_ACTIVATED = "input-controller:action-activated";
+    static ACTION_DEACTIVATED = "input-controller:action-deactivated";
 
-    constructor(actions = {}, target = document) {
-        this.enabled = true;
-        this.focused = true;
-        this.target = target;
-        this.actions = {};
-        this.pressedButtons = new Set();
-        this.plugins = [];
+    #actions = {};
+    #keyStates = {};
+    #target = null;
+    enabled = false;
+    focused = true;
 
-        this.bindActions(actions);
-
-        window.addEventListener('focus', () => this.focused = true);
-        window.addEventListener('blur', () => {
-            this.focused = false;
-            this.pressedButtons.clear();
-        });
+    constructor({ actionsToBind = {}, target = document } = {}) {
+        this.bindActions(actionsToBind);
+        this.attach(target);
+        window.addEventListener("blur", () => { this.focused = false; });
+        window.addEventListener("focus", () => { this.focused = true; });
     }
 
-    bindActions(actionsToBind) {
-        for (const [name, config] of Object.entries(actionsToBind)) {
-            if (!this.actions[name]) {
-                this.actions[name] = { keys: new Set(config.keys), enabled: config.enabled !== false };
-            } else {
-                (config.keys).forEach(k => this.actions[name].keys.add(k));
-            }
-        }
-    }
-
-    enableAction(name) {
-        if (this.actions[name]) this.actions[name].enabled = true;
-    }
-
-    disableAction(name) {
-        if (this.actions[name]) this.actions[name].enabled = false;
-    }
-
-    attach(target) {
-        this.plugins.forEach(plugin => plugin.detach());
-        this.target = target;
-        this.plugins.forEach(plugin => plugin.attach(target));
+    attach(target, dontEnable = false) {
+        this.#target = target;
+        if (!dontEnable) this.enabled = true;
     }
 
     detach() {
-        this.plugins.forEach(plugin => plugin.detach());
-        this.target = null;
+        this.enabled = false;
+        this.#target = null;
     }
 
-    addPlugin(plugin) {
-        this.plugins.push(plugin);
-        if (this.target) plugin.attach(this.target);
+    bindActions(actionsToBind) {
+        for (const [action, { keys = [], enabled = true }] of Object.entries(actionsToBind)) {
+            if (!this.#actions[action]) {
+                this.#actions[action] = { keys, enabled, active: false };
+            } else {
+                this.#actions[action].keys = Array.from(new Set([...this.#actions[action].keys, ...keys]));
+                this.#actions[action].enabled = enabled;
+            }
+        }
     }
 
-    isActionActive(name) {
+    enableAction(actionName) {
+        if (this.#actions[actionName]) this.#actions[actionName].enabled = true;
+    }
+
+    disableAction(actionName) {
+        if (this.#actions[actionName]) this.#actions[actionName].enabled = false;
+        if (this.#actions[actionName].active) {
+            this.#actions[actionName].active = false;
+            this.#dispatchEvent(InputController.ACTION_DEACTIVATED, actionName);
+        }
+    }
+
+    isActionActive(actionName) {
         if (!this.enabled || !this.focused) return false;
-        const action = this.actions[name];
+        const action = this.#actions[actionName];
         if (!action || !action.enabled) return false;
-        return [...action.keys].some(k => this.pressedButtons.has(k));
+        return action.keys.some(k => this.#keyStates[k]);
     }
 
-    buttonDown(button) {
-        if (this.pressedButtons.has(button)) return;
-        this.pressedButtons.add(button);
+    isKeyPressed(keyCode) {
+        return !!this.#keyStates[keyCode];
+    }
 
-        for (const [name, action] of Object.entries(this.actions)) {
-            if (action.enabled && action.keys.has(button)) {
-                const Alive = [...action.keys].some(k => k !== button && this.pressedButtons.has(k));
-                if (!Alive) {
-                    this.dispatchEvent(InputController.ACTION_ACTIVATED, name);
-                }
+    _setKeyState(keyCode, pressed) {
+        this.#keyStates[keyCode] = pressed;
+        for (const [actionName, action] of Object.entries(this.#actions)) {
+            if (!action.enabled) continue;
+            const wasActive = action.active;
+            action.active = action.keys.some(k => this.#keyStates[k]);
+            if (action.active !== wasActive) {
+                this.#dispatchEvent(action.active ? InputController.ACTION_ACTIVATED : InputController.ACTION_DEACTIVATED, actionName);
             }
         }
     }
 
-    buttonUp(button) {
-        if (!this.pressedButtons.has(button)) return;
-        this.pressedButtons.delete(button);
-
-        for (const [name, action] of Object.entries(this.actions)) {
-            if (action.enabled && action.keys.has(button)) {
-                const Alive = [...action.keys].some(k => this.pressedButtons.has(k));
-                if (!Alive) {
-                    this.dispatchEvent(InputController.ACTION_DEACTIVATED, name);
-                }
-            }
+    #dispatchEvent(type, actionName) {
+        if (this.#target && this.enabled && this.focused) {
+            const event = new CustomEvent(type, { detail: actionName });
+            this.#target.dispatchEvent(event);
         }
-    }
-
-    dispatchEvent(type, actionName) {
-        if (!this.target || !this.enabled) return;
-        this.target.dispatchEvent(new CustomEvent(type, { detail: { action: actionName } }));
     }
 }
