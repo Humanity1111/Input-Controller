@@ -1,59 +1,84 @@
-import { InputController } from "./input-controller.js";
 import { KeyboardPlugin } from "./keyboard-plugin.js";
 import { MousePlugin } from "./mouse-plugin.js";
 
-const arena = document.getElementById("arena");
 const player = document.getElementById("player");
+const arena = document.getElementById("arena");
+const status = document.getElementById("controller-status");
+const focusStatus = document.getElementById("focus-status");
 
-const controller = new InputController({
-    actionsToBind: {
-        left: { keys: [37, 65] },
-        right: { keys: [39, 68] },
-        up: { keys: [38, 87] },
-        down: { keys: [40, 83] },
-        click: { keys: [1], enabled: true }
-    },
-    target: arena
-});
+const actions = {
+    left: { keys: ["ArrowLeft", "KeyA"], enabled: true },
+    right: { keys: ["ArrowRight", "KeyD"], enabled: true },
+    up: { keys: ["ArrowUp", "KeyW"], enabled: true },
+    down: { keys: ["ArrowDown", "KeyS"], enabled: true }
+};
 
-const keyboard = KeyboardPlugin(controller);
-keyboard.attach();
+const kbController = new KeyboardPlugin(actions, document);
+const mouseController = new MousePlugin({
+    lmb: { keys: ["lmb"], enabled: true },
+    rmb: { keys: ["rmb"], enabled: true }
+}, arena);
 
-const mouse = MousePlugin(controller);
-mouse.attach();
+let jumpAdded = false;
 
-arena.addEventListener(InputController.ACTION_ACTIVATED, (e) => {
-    console.log(`Активировано: ${e.detail}`);
-});
-arena.addEventListener(InputController.ACTION_DEACTIVATED, (e) => {
-    console.log(`Деактивировано: ${e.detail}`);
-});
+kbController.attach(document);
+mouseController.attach(arena);
 
-document.getElementById("attach").onclick = () => controller.attach(arena);
-document.getElementById("detach").onclick = () => controller.detach();
-document.getElementById("enable").onclick = () => controller.enabled = true;
-document.getElementById("disable").onclick = () => controller.enabled = false;
-document.getElementById("add-jump").onclick = () => controller.bindActions({ jump: { keys: [32] } });
+document.getElementById("attach").onclick = () => {
+    kbController.attach(document);
+    mouseController.attach(arena);
+};
 
-function update() {
-    let top = parseInt(player.style.top) || 0;
-    let left = parseInt(player.style.left) || 0;
+document.getElementById("detach").onclick = () => {
+    kbController.detach();
+    mouseController.detach();
+};
 
-    if (controller.isActionActive("left")) left -= 5;
-    if (controller.isActionActive("right")) left += 5;
-    if (controller.isActionActive("up")) top -= 5;
-    if (controller.isActionActive("down")) top += 5;
-    if (controller.isActionActive("jump")) player.style.backgroundColor = "red";
-    else if (controller.isActionActive("click")) player.style.backgroundColor = "green";
-    else player.style.backgroundColor = "blue";
+document.getElementById("enable").onclick = () => {
+    kbController.enabled = true;
+    mouseController.enabled = true;
+};
 
-    player.style.top = Math.max(0, Math.min(450, top)) + "px";
-    player.style.left = Math.max(0, Math.min(450, left)) + "px";
+document.getElementById("disable").onclick = () => {
+    kbController.enabled = false;
+    mouseController.enabled = false;
+};
 
-    document.getElementById("controller-status").textContent = controller.enabled;
-    document.getElementById("focus-status").textContent = controller.focused;
+document.getElementById("add-jump").onclick = () => {
+    if (!jumpAdded) {
+        kbController.bindActions({ jump: { keys: ["Space"], enabled: true } });
+        jumpAdded = true;
+    }
+};
 
-    requestAnimationFrame(update);
+function movePlayer() {
+    let x = parseInt(player.style.left || 0);
+    let y = parseInt(player.style.top || 0);
+    const step = 5;
+
+    if (kbController.isActionActive("left")) x -= step;
+    if (kbController.isActionActive("right")) x += step;
+    if (kbController.isActionActive("up")) y -= step;
+    if (kbController.isActionActive("down")) y += step;
+
+    x = Math.max(0, Math.min(arena.clientWidth - player.clientWidth, x));
+    y = Math.max(0, Math.min(arena.clientHeight - player.clientHeight, y));
+
+    player.style.left = x + "px";
+    player.style.top = y + "px";
+
+    if (jumpAdded && kbController.isActionActive("jump")) {
+        player.style.backgroundColor = "yellow";
+    } else {
+        player.style.backgroundColor = "red";
+    }
+
+    requestAnimationFrame(movePlayer);
 }
 
-update();
+requestAnimationFrame(movePlayer);
+
+setInterval(() => {
+    status.textContent = kbController.enabled ? "enabled" : "disabled";
+    focusStatus.textContent = kbController.focused ? "focused" : "blurred";
+}, 100);
