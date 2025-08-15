@@ -5,7 +5,7 @@ export class ControllerPlugin extends InputController {
         super(actions, target);
     }
 
-    handleInput(code, isDown) {
+    handleInput(code, status) {
         if (!this.enabled || !this.focused) return;
 
         Object.entries(this.actions).forEach(([action, info]) => {
@@ -14,13 +14,13 @@ export class ControllerPlugin extends InputController {
             if (info.keys.includes(code)) {
                 const prevStatus = info.active;
 
-                if (isDown) {
+                if (status) {
                     info.active = true;
                 } else {
                     info.active = info.keys.some(k => this.keyStatus[k] && k !== code);
                 }
 
-                this.keyStatus[code] = isDown;
+                this.keyStatus[code] = status;
 
                 if (prevStatus !== info.active) {
                     const eventName = info.active ? this.ACTION_ACTIVATED : this.ACTION_DEACTIVATED;

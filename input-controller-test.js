@@ -69,7 +69,7 @@ function movePlayer() {
     player.style.left = x + "px";
     player.style.top = y + "px";
 
-    if (jumpAdded && kbController.isActionActive("jump")) {
+    if (kbController.isActionActive("jump")) {
         player.style.backgroundColor = "yellow";
     } else {
         player.style.backgroundColor = "red";
