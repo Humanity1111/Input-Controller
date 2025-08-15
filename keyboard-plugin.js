@@ -2,15 +2,15 @@ import { ControllerPlugin } from "./controller-plugin.js";
 
 export class KeyboardPlugin extends ControllerPlugin {
     init(target) {
-        this._keyDownHandler = e => this._handleInput(e.code, true);
-        this._keyUpHandler = e => this._handleInput(e.code, false);
-        target.addEventListener("keydown", this._keyDownHandler);
-        target.addEventListener("keyup", this._keyUpHandler);
+        this.keyDownHandler = e => this.handleInput(e.code, true);
+        this.keyUpHandler = e => this.handleInput(e.code, false);
+        target.addEventListener("keydown", this.keyDownHandler);
+        target.addEventListener("keyup", this.keyUpHandler);
     }
 
     destroy() {
         if (!this.target) return;
-        this.target.removeEventListener("keydown", this._keyDownHandler);
-        this.target.removeEventListener("keyup", this._keyUpHandler);
+        this.target.removeEventListener("keydown", this.keyDownHandler);
+        this.target.removeEventListener("keyup", this.keyUpHandler);
     }
 }
