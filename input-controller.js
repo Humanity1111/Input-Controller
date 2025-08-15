@@ -4,10 +4,11 @@ export class InputController {
 
     constructor(actionsToBind = {}, target = document) {
         this.actions = {};
-        this.keyStatus = {};
         this.enabled = true;
         this.focused = true;
         this.target = target;
+        this.plugins = [];
+        this.activeKeys = new Set();
 
         this.bindActions(actionsToBind);
 
@@ -23,6 +24,20 @@ export class InputController {
                 this.actions[action].keys = Array.from(new Set([...this.actions[action].keys, ...info.keys]));
             }
         });
+    }
+
+    attachPlugin(plugin) {
+        plugin.controller = this;
+        this.plugins.push(plugin);
+        if (plugin.init) plugin.init(this.target);
+    }
+
+    detachPlugin(plugin) {
+        const index = this.plugins.indexOf(plugin);
+        if (index >= 0) {
+            if (plugin.destroy) plugin.destroy();
+            this.plugins.splice(index, 1);
+        }
     }
 
     enableAction(actionName) {
@@ -49,6 +64,38 @@ export class InputController {
     }
 
     isKeyPressed(code) {
-        return !!this.keyStatus[code];
+        return this.activeKeys.has(code);
+    }
+
+    isActionHeldByAnyPlugin(actionName) {
+        return this.plugins.some(plugin => plugin.isActionActive && plugin.isActionActive(actionName));
+    }
+
+    pluginInput(identifier, pressed) {
+        if (!this.enabled || !this.focused) return;
+
+        if (pressed) {
+            this.activeKeys.add(identifier);
+        } else {
+            this.activeKeys.delete(identifier);
+        }
+
+        Object.entries(this.actions).forEach(([actionName, action]) => {
+            if (!action.enabled) return;
+
+            const shouldBeActive = action.keys.some(key => this.activeKeys.has(key));
+
+            if (shouldBeActive && !action.active) {
+                action.active = true;
+                this.target.dispatchEvent(new CustomEvent(this.ACTION_ACTIVATED, { detail: { action: actionName } }));
+            }
+
+            if (!shouldBeActive && action.active) {
+                if (!this.isActionHeldByAnyPlugin(actionName)) {
+                    action.active = false;
+                    this.target.dispatchEvent(new CustomEvent(this.ACTION_DEACTIVATED, { detail: { action: actionName } }));
+                }
+            }
+        });
     }
 }

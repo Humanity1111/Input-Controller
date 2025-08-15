@@ -1,23 +1,37 @@
-import { ControllerPlugin } from "./controller-plugin.js";
+export class MousePlugin {
+    constructor() {
+        this.controller = null;
+        this.activeButtons = new Set();
+        this.buttonMap = { 0: "lmb", 1: "mmb", 2: "rmb" };
+    }
 
-export class MousePlugin extends ControllerPlugin {
-    init(target) {
+    init(target = document) {
         this.mouseDownHandler = e => {
-            const code = e.button === 0 ? "lmb" : e.button === 2 ? "rmb" : e.button === 1 ? "mmb" : null;
-            if (code) this.handleInput(code, true);
+            const id = this.buttonMap[e.button];
+            if (!this.activeButtons.has(id)) {
+                this.activeButtons.add(id);
+                this.controller.pluginInput(id, true);
+            }
         };
         this.mouseUpHandler = e => {
-            const code = e.button === 0 ? "lmb" : e.button === 2 ? "rmb" : e.button === 1 ? "mmb" : null;
-            if (code) this.handleInput(code, false);
+            const id = this.buttonMap[e.button];
+            this.activeButtons.delete(id);
+            this.controller.pluginInput(id, false);
         };
+
         target.addEventListener("mousedown", this.mouseDownHandler);
         target.addEventListener("mouseup", this.mouseUpHandler);
         target.addEventListener("contextmenu", e => e.preventDefault());
     }
 
     destroy() {
-        if (!this.target) return;
-        this.target.removeEventListener("mousedown", this.mouseDownHandler);
-        this.target.removeEventListener("mouseup", this.mouseUpHandler);
+        document.removeEventListener("mousedown", this.mouseDownHandler);
+        document.removeEventListener("mouseup", this.mouseUpHandler);
+    }
+
+    isActionActive(actionName) {
+        const action = this.controller.actions[actionName];
+        if (!action) return false;
+        return action.keys.some(key => this.activeButtons.has(key));
     }
 }
