@@ -1,6 +1,7 @@
 import { KeyboardPlugin } from "./keyboard-plugin.js";
 import { MousePlugin } from "./mouse-plugin.js";
 
+
 const player = document.getElementById("player");
 const arena = document.getElementById("arena");
 const status = document.getElementById("controller-status");
@@ -16,7 +17,8 @@ const actions = {
 const kbController = new KeyboardPlugin(actions, document);
 const mouseController = new MousePlugin({
     lmb: { keys: ["lmb"], enabled: true },
-    rmb: { keys: ["rmb"], enabled: true }
+    rmb: { keys: ["rmb"], enabled: true },
+    mmb: { keys: ["mmb"], enabled: true }
 }, arena);
 
 let jumpAdded = false;
@@ -54,12 +56,12 @@ document.getElementById("add-jump").onclick = () => {
 function movePlayer() {
     let x = parseInt(player.style.left || 0);
     let y = parseInt(player.style.top || 0);
-    const step = 5;
+    const speed = 5;
 
-    if (kbController.isActionActive("left")) x -= step;
-    if (kbController.isActionActive("right")) x += step;
-    if (kbController.isActionActive("up")) y -= step;
-    if (kbController.isActionActive("down")) y += step;
+    if (kbController.isActionActive("left")) x -= speed;
+    if (kbController.isActionActive("right")) x += speed;
+    if (kbController.isActionActive("up")) y -= speed;
+    if (kbController.isActionActive("down")) y += speed;
 
     x = Math.max(0, Math.min(arena.clientWidth - player.clientWidth, x));
     y = Math.max(0, Math.min(arena.clientHeight - player.clientHeight, y));
